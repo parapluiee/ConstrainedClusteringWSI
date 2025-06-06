@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression as LR
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-def classifier(df, split, emb_name):
+def regression(df, split, emb_name):
      #multiclass solver, the one guillaume recommended
     solver = 'saga'
     #80/20 train test
