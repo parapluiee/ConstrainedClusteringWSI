@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import torch
+from constr_KMeans import ConKMeans
 def regression(df, split, emb_name):
      #multiclass solver, the one guillaume recommended
     solver = 'saga'
@@ -92,3 +93,39 @@ def base_clustering(df, emb_name, split=.8, iterations=100):
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
+def constr_clustering(df, split, emb_name, n_seeds=1):
+
+    preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
+    for name, lemma in df.groupby('lemma'):
+        print(name) 
+        train, test = train_test_split(lemma, train_size=split)
+        train=train.reset_index(drop=True)
+        num2label = [name for name, _ in train.groupby('sem_label')]
+        seeds = [list(group.head(n_seeds).index.values) for name, group in train.groupby('sem_label')]
+        
+        X_train = torch.tensor(np.array([x for x in train[emb_name]]))
+
+        Y_train = np.array(train['sem_label'])
+
+        X_test = torch.tensor(np.array([x for x in test[emb_name]]))
+        Y_test = np.array(test['sem_label'])
+        
+        #fine to find k based on all labels, should be the same if split works correctly
+        k = lemma['sem_label'].nunique()
+        #workaround until even split is achieved
+        while (len(seeds) < k):
+            seeds.append([])
+            new_sense = num2label[0]
+            new_sense = new_sense.replace('0', str(len(num2label)))
+            num2label.append(new_sense)
+        clusterer = ConKMeans(k)
+        # Define the number of iterations
+        clusterer.fit(seeds, X_train)
+        labels_pred = [num2label[x] for x in clusterer._assign_labels(X_test)]
+        app_df = pd.DataFrame({
+                    "pred":labels_pred,
+                    "gold":Y_test,
+                    "lemma":[name]*len(X_test)}
+                    ) 
+        preds = pd.concat([preds, app_df], axis=0)
+    return preds 
