@@ -11,7 +11,7 @@ parser.add_argument('data_path')
 parser.add_argument('gold_path')
 parser.add_argument('embedding', choices=['bert'])
 parser.add_argument('calculated', choices=['T', 'F'])
-parser.add_argument('classifier', choices=['regression', 'base-clustering'])
+parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering'])
 args=parser.parse_args()
 
 
@@ -44,6 +44,8 @@ def main(xml_path, gold_path, split, embed, calc, classifier):
             preds = classifiers.regression(df[['lemma', 'sem_label', embed]], split, embed)
         case "base-clustering":
             preds = classifiers.base_clustering(df[['lemma', 'sem_label', embed]], split=split, emb_name=embed)
+        case "constr-clustering":
+            preds = classifiers.constr_clustering(df[['lemma', 'sem_label', embed]], split=split, emb_name=embed, n_seeds=1)
     
     
     #preds have columns:
