@@ -6,6 +6,7 @@ def base_metrics(df, lem_most_com):
     output_dict['per_acc'] = df.groupby('lemma').apply(lambda x: metrics.accuracy_score(x['gold'], x['pred']))
     output_dict['baseline'] = df.groupby('lemma').apply(lambda x: metrics.accuracy_score(x['gold'], [lem_most_com[x['lemma'].iloc[0]]] * len(x)))
     output_dict['beat_baseline'] = output_dict['baseline'].le(output_dict['per_acc'])
+    output_dict['beat_base_per'] = sum(output_dict['beat_baseline']) / len(output_dict['beat_baseline'])
     return output_dict
 
 

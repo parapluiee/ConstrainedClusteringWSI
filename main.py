@@ -4,12 +4,14 @@ import classifiers
 import metrics
 import pandas as pd
 import argparse
-
+from numpy import load
+import numpy as np
 parser=argparse.ArgumentParser(description="sample argument parser")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')
-parser.add_argument('embedding', choices=['bert_emb'])
-parser.add_argument('classifier', choices=['regression'])
+parser.add_argument('embedding', choices=['bert'])
+parser.add_argument('calculated', choices=['T', 'F'])
+parser.add_argument('classifier', choices=['regression', 'base-clustering'])
 args=parser.parse_args()
 
 
@@ -18,22 +20,34 @@ GOLD_PATH = args.gold_path
 EMBED = args.embedding
 CLASSIFIER = args.classifier
 SPLIT = .8
+CALC = args.calculated
 
-def main(xml_path, gold_path, split, embed, classifier):
+def main(xml_path, gold_path, split, embed, calc, classifier):
     df = data.get_df(gold_path, xml_path)
     lem_most_com = df.groupby('lemma')['sem_label'].apply(lambda x:x.mode().iloc[0]).to_dict()
-    print(lem_most_com)
+    print("Creating embeddings from: ", xml_path)
     match embed:
-        case "bert_emb":
-            df['bert_emb'] = ws_embeddings.embed_bert(df)
+        case "bert":
+            if calc == 'T':
+                np_data = load(xml_path + '.npy', allow_pickle=True)
+                #print(np_data)
+                df['bert'] = np_data
+                #print(df)
+                #return
+            else:
+                df['bert'] = ws_embeddings.embed_bert(df)
+                np.save(open(xml_path + '.npy', 'wb'), np.array(df['bert']))
+            
+    print("Beginning training: ", classifier)
     match classifier:
         case "regression":
-            preds = classifiers.classifier(df[['lemma', 'sem_label', embed]], split, embed)
+            preds = classifiers.regression(df[['lemma', 'sem_label', embed]], split, embed)
+        case "base-clustering":
+            preds = classifiers.base_clustering(df[['lemma', 'sem_label', embed]], split=split, emb_name=embed)
     
     
-    print(lem_most_com)
     #preds have columns:
         #pred, gold, lemma
     metric = metrics.base_metrics(preds, lem_most_com)
     print(metric)
-main(XML_PATH, GOLD_PATH, SPLIT, EMBED, CLASSIFIER)
+main(XML_PATH, GOLD_PATH, SPLIT, EMBED, CALC, CLASSIFIER)
