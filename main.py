@@ -9,7 +9,7 @@ import numpy as np
 parser=argparse.ArgumentParser(description="sample argument parser")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')
-parser.add_argument('embedding', choices=['bert'])
+parser.add_argument('embedding', choices=['bert', 'fasttext'])
 parser.add_argument('calculated', choices=['T', 'F'])
 parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering'])
 args=parser.parse_args()
@@ -37,6 +37,8 @@ def main(xml_path, gold_path, split, embed, calc, classifier):
             else:
                 df['bert'] = ws_embeddings.embed_bert(df)
                 np.save(open(xml_path + '.npy', 'wb'), np.array(df['bert']))
+        case "fasttext":
+            pass
             
     print("Beginning training: ", classifier)
     match classifier:
