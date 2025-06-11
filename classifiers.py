@@ -30,10 +30,10 @@ def regression(df, split, emb_name):
         else:
             #cross_validation, need to make sure equal senses in training data
             train, test = train_test_split(group, train_size=split)
-            X_train = np.array([x.numpy() for x in train[emb_name]])
+            X_train = np.array([np.array(x) for x in train[emb_name]])
             Y_train = train['sem_label'].values
 
-            X_test = np.array([x.numpy() for x in test[emb_name]])
+            X_test = np.array([np.array(x) for x in test[emb_name]])
             Y_test = test['sem_label'].values
 
 
@@ -53,10 +53,10 @@ def base_clustering(df, emb_name, split=.8, iterations=100):
 
     for name, lemma in df.groupby('lemma'):
         train, test = train_test_split(lemma, train_size=split)
-        X_train = torch.tensor(np.array([x.numpy() for x in train[emb_name]]))
+        X_train = torch.tensor(np.array([np.array(x) for x in train[emb_name]]))
         Y_train = np.array(train['sem_label'])
 
-        X_test = torch.tensor(np.array([x.numpy() for x in test[emb_name]]))
+        X_test = torch.tensor(np.array([np.array(x) for x in test[emb_name]]))
         Y_test = np.array(test['sem_label'])
         
         #fine to find k based on all labels, should be the same if split works correctly

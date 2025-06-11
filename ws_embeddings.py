@@ -1,6 +1,8 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
 import numpy as np
+from huggingface_hub import hf_hub_download
+import fasttext
 def embeddings_model(model, tokenizer, sent, idx):
     tokens = list()
     words = sent
@@ -24,3 +26,21 @@ def embed_bert(df):
     tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
     model = AutoModel.from_pretrained("distilbert-base-uncased")
     return df.apply(lambda x: embeddings_model(model, tokenizer, x['sent'], x['idx']), axis=1)
+
+def fasttext_emb(df):
+    model_path = hf_hub_download(repo_id="facebook/fasttext-fr-vectors", filename="model.bin")
+    model_ft = fasttext.load_model(model_path)
+    return df.apply(lambda x: sentence_to_vector(x['sent'], x['idx'], model_ft), axis=1)
+
+def sentence_to_vector(tokens, idx, model, window=5, vector_size=300):
+    start = max(idx - window, 0)
+    end = min(idx + window + 1, len(tokens))
+    context = tokens[start:idx] + tokens[idx+1:end]
+
+    vectors = []
+    for word in context:
+      vectors.append(model.get_word_vector(word))  # for fastText
+
+    return np.mean(vectors, axis=0)
+
+
