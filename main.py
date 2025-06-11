@@ -6,6 +6,7 @@ import pandas as pd
 import argparse
 from numpy import load
 import numpy as np
+import utils 
 parser=argparse.ArgumentParser(description="sample argument parser")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')

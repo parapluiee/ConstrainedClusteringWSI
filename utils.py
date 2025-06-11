@@ -18,6 +18,6 @@ def custom_train_test_split(df):
   # Concatenate the original DataFrame with the duplicated rows
   df = pd.concat([df, duplicated_rows], ignore_index=True)
 
-  train, test = train_test_split(df,test_size=0.2, stratify=df['sem_label'], random_state=42)
+  train, test = train_test_split(df,test_size=0.2, stratify=df['sem_label'])#, random_state=42)
 
   return train, test

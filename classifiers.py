@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import torch
 from constr_KMeans import ConKMeans
+import utils
 def regression(df, split, emb_name):
      #multiclass solver, the one guillaume recommended
     solver = 'saga'
@@ -23,13 +24,13 @@ def regression(df, split, emb_name):
         #sometimes there is only one sem_label type, which is trivial
         if (len(labels) == 1 or len(group) == 1):
             app_df = pd.DataFrame({
-                "pred":[labels[0]]*max(1, int(split*len(group))),
+                "pred":[list(labels)[0]]*len(X_test),
                 "gold":Y_test,
                 "lemma":[name]*len(X_test)}
                     )
         else:
             #cross_validation, need to make sure equal senses in training data
-            train, test = train_test_split(group, train_size=split)
+            train, test = utils.custom_train_test_split(group) 
             X_train = np.array([np.array(x) for x in train[emb_name]])
             Y_train = train['sem_label'].values
 
@@ -52,7 +53,7 @@ def base_clustering(df, emb_name, split=.8, iterations=100):
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
 
     for name, lemma in df.groupby('lemma'):
-        train, test = train_test_split(lemma, train_size=split)
+        train, test = utils.custom_train_test_split(lemma)
         X_train = torch.tensor(np.array([np.array(x) for x in train[emb_name]]))
         Y_train = np.array(train['sem_label'])
 
@@ -97,8 +98,7 @@ def constr_clustering(df, split, emb_name, n_seeds=1):
 
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     for name, lemma in df.groupby('lemma'):
-        print(name) 
-        train, test = train_test_split(lemma, train_size=split)
+        train, test = utils.custom_train_test_split(lemma)
         train=train.reset_index(drop=True)
         num2label = [name for name, _ in train.groupby('sem_label')]
         seeds = [list(group.head(n_seeds).index.values) for name, group in train.groupby('sem_label')]
@@ -112,15 +112,21 @@ def constr_clustering(df, split, emb_name, n_seeds=1):
         
         #fine to find k based on all labels, should be the same if split works correctly
         k = lemma['sem_label'].nunique()
+        """
         #workaround until even split is achieved
         while (len(seeds) < k):
             seeds.append([])
             new_sense = num2label[0]
             new_sense = new_sense.replace('0', str(len(num2label)))
             num2label.append(new_sense)
+        """
         clusterer = ConKMeans(k)
         # Define the number of iterations
-        clusterer.fit(seeds, X_train)
+        
+        #add logic to average a number of seeds for centroid initialization
+        centr_ids = [x[0:n_seeds] for x in seeds]
+        centroids = torch.stack([torch.mean(torch.stack(list(train.iloc[seed_ids][emb_name])), axis=1) for seed_ids in centr_ids])
+        clusterer.fit(seeds, centroids, X_train)
         labels_pred = [num2label[x] for x in clusterer._assign_labels(X_test)]
         app_df = pd.DataFrame({
                     "pred":labels_pred,

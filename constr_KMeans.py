@@ -1,12 +1,12 @@
 import numpy as np
 from sklearn.datasets import make_blobs
-
+import torch
 class ConKMeans:
     def __init__(self, n_clusters, max_iters=100):
         self.n_clusters = n_clusters
         self.max_iters = max_iters
 
-    def fit(self, seeds, X):
+    def fit(self, seeds, centroids, X):
         if len(seeds) != self.n_clusters:
             print(seeds)
             print(self.n_clusters)
@@ -19,7 +19,7 @@ class ConKMeans:
         for s in all_seeds:
             seed_mask[s] = True
         # Initialize centroids how?
-        self.centroids = X[np.random.choice(X.shape[0], self.n_clusters, replace=False)] 
+        self.centroids = centroids
         for _ in range(self.max_iters):
             # Assign each data point to the nearest centroid
             labels = self._assign_labels(X, seed_assignment, seed_mask)
