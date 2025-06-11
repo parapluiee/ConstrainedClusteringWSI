@@ -29,16 +29,24 @@ def main(xml_path, gold_path, split, embed, calc, classifier):
     match embed:
         case "bert":
             if calc == 'T':
-                np_data = load(xml_path + '.npy', allow_pickle=True)
+                np_data = load(xml_path + 'bert.npy', allow_pickle=True)
                 #print(np_data)
                 df['bert'] = np_data
                 #print(df)
                 #return
             else:
                 df['bert'] = ws_embeddings.embed_bert(df)
-                np.save(open(xml_path + '.npy', 'wb'), np.array(df['bert']))
+                np.save(open(xml_path + 'bert.npy', 'wb'), np.array(df['bert']))
         case "fasttext":
-            pass
+                if calc == 'T':
+                    np_data = load(xml_path + 'ft.npy', allow_pickle=True)
+                #print(np_data)
+                    df['fasttext'] = np_data
+                #print(df)
+                #return
+                else:
+                    df['fasttext'] = ws_embeddings.fasttext_emb(df)
+                    np.save(open(xml_path + 'ft.npy', 'wb'), np.array(df['fasttext']))
             
     print("Beginning training: ", classifier)
     match classifier:
