@@ -1,10 +1,9 @@
 import xml.etree.ElementTree as ET
-
-
+import utils
+import numpy as np
 import pandas as pd
 def create_df(data_path):
     #Parsing xml
-    print(data_path)
     tree = ET.parse(data_path)
     root = tree.getroot()
     #Each sentence has one instance (data point), as far as I could tell
@@ -49,4 +48,28 @@ def get_df(gold_path, xml_path):
         gold_labels = {x[0]:x[1] for x in s}
     df['sem_label'] = df['ist_id'].map(lambda x: gold_labels[x])
     return df
+
+def prepare_data(df, emb_name, split):
+    #goal:
+        #return dict with X_train, X_test, Y_train, Y_test, from custom data split
+    out = dict()
+    for name, group in df.groupby('lemma'):
+        labels = list(set(group['sem_label'].values))
+        labels.sort()
+        train, test = utils.custom_train_test_split(group) 
+        X_train = np.array([np.array(x) for x in train[emb_name]])
+        Y_train = train['sem_label'].values
+
+        X_test = np.array([np.array(x) for x in test[emb_name]])
+        Y_test = test['sem_label'].values
+        out[name] = {
+            "train":train,
+            "X_train": X_train,
+            "Y_train": Y_train,
+            "X_test": X_test,
+            "Y_test": Y_test,
+            "labels": labels
+            }
+    return out
+
 
