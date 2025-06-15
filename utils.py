@@ -1,7 +1,8 @@
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
+import sklearn.metrics as sklm
 import pandas as pd
-
+import numpy as np
 def custom_train_test_split(df):
   # Get the value counts of 'sem_label'
   label_counts = df['sem_label'].value_counts()
@@ -21,3 +22,16 @@ def custom_train_test_split(df):
   train, test = train_test_split(df,test_size=0.2, stratify=df['sem_label'])#, random_state=42)
 
   return train, test
+
+
+def agirre_matr(cluster, ws, senses):
+    
+    s2idx = {senses[i]:i for i in range(len(senses))}
+    M = np.zeros((len(senses), len(senses)))
+    for i in range(len(ws)):
+        M[cluster[i]][s2idx[ws[i]]]+=1
+    M = M / M.sum(axis=1)[:, None]
+    return M
+    #cluster assignment, real word sense\
+
+

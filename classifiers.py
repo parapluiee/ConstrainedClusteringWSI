@@ -64,7 +64,8 @@ def base_clustering(df, emb_name, split=.8, iterations=100):
         k = lemma['sem_label'].nunique()
         centroids = X_train[torch.randperm(X_train.size(0))[:k]]
         # Define the number of iterations
-        label_2_sem = dict()
+        sem_labels = list(set(lemma['sem_label']))
+        sem_labels.sort()
         for _ in range(iterations):
           # Calculate distances from data points to centroids
             distances = torch.cdist(X_train, centroids)
@@ -74,20 +75,17 @@ def base_clustering(df, emb_name, split=.8, iterations=100):
 
             # Update centroids by taking the mean of data points assigned to each centroid
             for i in range(k):
-                cor = list(Y_train[labels==i])
-                if (len(cor) !=0):
-                    #assign label names based on number of gold labels in each cluster
-                    #probably should find another metric for this
-                    label_2_sem[i] = max(set(cor), key=cor.count)
                 if torch.sum(labels == i) > 0:
                     centroids[i] = torch.mean(X_train[labels == i], dim=0)
+
         #use entire data as training and testa
         distances_pred = torch.cdist(X_test, centroids)
+        M = utils.agirre_matr(labels, Y_train, sem_labels)
             # Assign each data point to the closest centroid
         _, clusters_pred = torch.min(distances_pred, dim=1)
-        labels_pred = np.array([label_2_sem[x.item()] for x in clusters_pred])
         app_df = pd.DataFrame({
-                    "pred":labels_pred,
+            "pred":[sem_labels[int(x)] for x in np.argmax(np.dot(distances_pred, M), axis=1)],
+                    "cluster":clusters_pred,
                     "gold":Y_test,
                     "lemma":[name]*len(X_test)}
                     ) 
@@ -101,6 +99,8 @@ def constr_clustering(df, split, emb_name, n_seeds=1):
         train, test = utils.custom_train_test_split(lemma)
         train=train.reset_index(drop=True)
         num2label = [name for name, _ in train.groupby('sem_label')]
+        senses = list(set(lemma['sem_label'].tolist()))
+        senses.sort()
         seeds = [list(group.head(n_seeds).index.values) for name, group in train.groupby('sem_label')]
         
         X_train = torch.tensor(np.array([x for x in train[emb_name]]))
@@ -125,13 +125,15 @@ def constr_clustering(df, split, emb_name, n_seeds=1):
         
         #add logic to average a number of seeds for centroid initialization
         centr_ids = [x[0:n_seeds] for x in seeds]
+        #mean n_seeds for each cluster
         centroids = torch.stack([torch.mean(torch.stack(list(train.iloc[seed_ids][emb_name])), axis=1) for seed_ids in centr_ids])
-        clusterer.fit(seeds, centroids, X_train)
-        labels_pred = [num2label[x] for x in clusterer._assign_labels(X_test)]
+        M = clusterer.fit(seeds, centroids, X_train, Y_train, senses)
+        distances_pred, labels_pred = clusterer._assign_labels(X_test)
         app_df = pd.DataFrame({
-                    "pred":labels_pred,
-                    "gold":Y_test,
-                    "lemma":[name]*len(X_test)}
-                    ) 
+            "pred":[senses[int(x)] for x in np.argmax(np.dot(distances_pred, M), axis=1)],
+            "cluster":labels_pred,
+            "gold":Y_test,
+            "lemma":[name]*len(X_test)}
+        ) 
         preds = pd.concat([preds, app_df], axis=0)
     return preds 
