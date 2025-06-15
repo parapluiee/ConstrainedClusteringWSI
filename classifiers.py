@@ -49,7 +49,7 @@ def regression(df, split, emb_name):
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def base_clustering(df, emb_name, sim_metric, split=.8, iterations=100):
+def base_clustering(df, emb_name, sim_metric, m_m, split=.8, iterations=100):
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
 
     for name, lemma in df.groupby('lemma'):
@@ -65,7 +65,7 @@ def base_clustering(df, emb_name, sim_metric, split=.8, iterations=100):
         # Define the number of iterations
         sem_labels = list(set(lemma['sem_label']))
         sem_labels.sort()
-        clusterer = ConKMeans(k, sim_metric)
+        clusterer = ConKMeans(k, sim_metric, m_m)
         M = clusterer.fit(X_train, Y_train, sem_labels)
 
         distances_pred, clusters_pred = clusterer._assign_labels(X_test)
@@ -79,7 +79,7 @@ def base_clustering(df, emb_name, sim_metric, split=.8, iterations=100):
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def constr_clustering(df, split, sim_metric, emb_name, n_seeds=1):
+def constr_clustering(df, split, sim_metric, m_m, emb_name, n_seeds=1):
 
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     for name, lemma in df.groupby('lemma'):
@@ -107,11 +107,11 @@ def constr_clustering(df, split, sim_metric, emb_name, n_seeds=1):
             new_sense = new_sense.replace('0', str(len(num2label)))
             num2label.append(new_sense)
         """
-        clusterer = ConKMeans(k, sim_metric)
+        clusterer = ConKMeans(k, sim_metric, m_m)
         # Define the number of iterations
         
         #add logic to average a number of seeds for centroid initialization
-        M = clusterer.fit(X_train, Y_train, senses, seeds=seeds)
+        M = clusterer.fit(X_train, Y_train, senses, seeds=seeds, n_seeds=n_seeds)
         distances_pred, labels_pred = clusterer._assign_labels(X_test)
         app_df = pd.DataFrame({
             "pred":[senses[int(x)] for x in np.argmax(np.dot(distances_pred, M), axis=1)],

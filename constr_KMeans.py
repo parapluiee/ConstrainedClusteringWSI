@@ -3,16 +3,15 @@ from sklearn.datasets import make_blobs
 import torch
 import utils
 class ConKMeans:
-    def __init__(self, n_clusters, sim_metric, max_iters=100):
+    def __init__(self, n_clusters, sim_metric, m_m = np.argmin, max_iters=100):
         self.n_clusters = n_clusters
         self.max_iters = max_iters
         self.sim_metric = sim_metric
+        self.m_m = m_m
 
-    def fit(self, X, Y, senses, seeds=None):
-        if seeds:
+    def fit(self, X, Y, senses, n_seeds=0, seeds=None):
+        if n_seeds:
             if len(seeds) != self.n_clusters:
-                print(seeds)
-                print(self.n_clusters)
                 raise ValueError("Seeds array and n_clusters must be the same size")
             seed_dict = {s:i for i, seed in enumerate(seeds) for s in seed}
             all_seeds = [s for row in seeds for s in row]
@@ -24,7 +23,7 @@ class ConKMeans:
             # Initialize centroids how?
             centr_ids = [x[0:n_seeds] for x in seeds]
         #mean n_seeds for each cluster
-            self.centroids = torch.stack([torch.mean(torch.stack(list(train.iloc[seed_ids][emb_name])), axis=1) for seed_ids in centr_ids])
+            self.centroids = torch.stack([torch.mean(torch.stack([X[s] for s in seed_ids]), axis=0) for seed_ids in centr_ids])
 
         else:
             self.centroids = X[torch.randperm(X.size(0))[:self.n_clusters]]
@@ -45,7 +44,7 @@ class ConKMeans:
         
         distances = self.sim_metric(X, self.centroids)
         # Assign labels based on the nearest centroid
-        assignments = np.argmin(distances, axis=1)
+        assignments = self.m_m(distances, axis=1)
         assignments[seed_mask] = seed_assignment
         return distances, assignments
     
