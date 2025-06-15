@@ -35,3 +35,8 @@ def agirre_matr(cluster, ws, senses):
     #cluster assignment, real word sense\
 
 
+def cl_distance(X, centroids):
+    return np.linalg.norm(X[:, np.newaxis] - centroids, axis=2)
+
+def cl_cossim(X, centroids):
+   sklm.pairwise.cosine_similarity(X, centroids) 

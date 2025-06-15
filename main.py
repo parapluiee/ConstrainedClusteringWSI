@@ -54,9 +54,9 @@ def main(xml_path, gold_path, split, embed, calc, classifier):
         case "regression":
             preds = classifiers.regression(df[['lemma', 'sem_label', embed]], split, embed)
         case "base-clustering":
-            preds = classifiers.base_clustering(df[['lemma', 'sem_label', embed]], split=split, emb_name=embed)
+            preds = classifiers.base_clustering(df[['lemma', 'sem_label', embed]], emb_name=embed, sim_metric=utils.cl_distance, split=split) 
         case "constr-clustering":
-            preds = classifiers.constr_clustering(df[['lemma', 'sem_label', embed]], split=split, emb_name=embed, n_seeds=1)
+            preds = classifiers.constr_clustering(df[['lemma', 'sem_label', embed]], sim_metric=utils.cl_distance, split=split, emb_name=embed, n_seeds=1)
     
     match classifier:
         case "regression":
