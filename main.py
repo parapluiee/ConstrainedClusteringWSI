@@ -6,6 +6,7 @@ import pandas as pd
 import argparse
 from numpy import load
 import numpy as np
+import utils 
 parser=argparse.ArgumentParser(description="sample argument parser")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')
@@ -57,9 +58,15 @@ def main(xml_path, gold_path, split, embed, calc, classifier):
         case "constr-clustering":
             preds = classifiers.constr_clustering(df[['lemma', 'sem_label', embed]], split=split, emb_name=embed, n_seeds=1)
     
+    match classifier:
+        case "regression":
+            preds['cluster'] = preds['pred'] 
+            clustering_metric = metrics.clustering_metrics(preds, lem_most_com)
+            metric = metrics.base_metrics(preds, lem_most_com)
+        case _:
+            clustering_metric = metrics.clustering_metrics(preds, lem_most_com)
+            metric = metrics.base_metrics(preds, lem_most_com)
     
-    #preds have columns:
-        #pred, gold, lemma
-    metric = metrics.base_metrics(preds, lem_most_com)
+    print(clustering_metric)
     print(metric)
 main(XML_PATH, GOLD_PATH, SPLIT, EMBED, CALC, CLASSIFIER)
