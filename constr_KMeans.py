@@ -35,13 +35,14 @@ class ConKMeans:
              
             # Update centroids
             new_centroids = self._update_centroids(X, labels) 
-               
+            for i in range(len(new_centroids)):
+                if np.isnan(new_centroids[i]).sum():
+                    new_centroids[i] = self.centroids[i]
             self.centroids = new_centroids
         return utils.agirre_matr(labels, Y, senses)
 
     def _assign_labels(self, X, seed_assignment=list(), seed_mask=list()):
         # Compute distances from each data point to centroids
-        
         distances = self.sim_metric(X, self.centroids)
         # Assign labels based on the nearest centroid
         assignments = self.m_m(distances, axis=1)

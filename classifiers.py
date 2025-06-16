@@ -6,7 +6,7 @@ import torch
 from constr_KMeans import ConKMeans
 import utils
 
-def regression(data_dict, split, emb_name):
+def regression(data_dict, emb_name):
      #multiclass solver, the one guillaume recommended
     solver = 'saga'
     #80/20 train test
@@ -14,7 +14,7 @@ def regression(data_dict, split, emb_name):
     #group by lemma
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     lemma_most_com = dict()
-    
+    data_dict = data_dict[emb_name] 
     for name in data_dict:
         #this randomly sorts the list
         #point where we split
@@ -30,6 +30,7 @@ def regression(data_dict, split, emb_name):
         if (len(labels) == 1):
             app_df = pd.DataFrame({
                 "pred":[list(labels)[0]]*len(X_test),
+                "cluster":[list(labels)[0]]*len(X_test),
                 "gold":Y_test,
                 "lemma":[name]*len(X_test)}
                     )
@@ -40,22 +41,23 @@ def regression(data_dict, split, emb_name):
             pred = classifier.predict(X_test)
             app_df = pd.DataFrame({
             "pred":pred,
+            "cluster":pred,
             "gold":Y_test,
             "lemma":[name]*len(X_test)}
             ) 
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def base_clustering(data_dict, emb_name, sim_metric, m_m, split=.8, iterations=100):
+def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100):
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
 
+    data_dict = data_dict[emb_name] 
     for name in data_dict:
         sem_labels = data_dict[name]['labels']
         X_train = torch.tensor(data_dict[name]['X_train'])
         Y_train = data_dict[name]['Y_train']
         X_test = torch.tensor(data_dict[name]['X_test'])
         Y_test = data_dict[name]['Y_test']
-
         #fine to find k based on all labels, should be the same if split works correctly
         k = len(sem_labels)
         # Define the number of iterations
@@ -73,8 +75,9 @@ def base_clustering(data_dict, emb_name, sim_metric, m_m, split=.8, iterations=1
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def constr_clustering(data_dict, split, sim_metric, m_m, emb_name, n_seeds=1):
+def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1):
 
+    data_dict = data_dict[emb_name] 
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     for name in data_dict:
         senses = data_dict[name]['labels']

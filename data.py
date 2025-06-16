@@ -49,27 +49,29 @@ def get_df(gold_path, xml_path):
     df['sem_label'] = df['ist_id'].map(lambda x: gold_labels[x])
     return df
 
-def prepare_data(df, emb_name, split):
+#emb_name is a list of embedding names
+def prepare_data(df, emb_name, split=.8):
     #goal:
         #return dict with X_train, X_test, Y_train, Y_test, from custom data split
-    out = dict()
+    by_emb = {emb:dict() for emb in emb_name} 
     for name, group in df.groupby('lemma'):
         labels = list(set(group['sem_label'].values))
         labels.sort()
-        train, test = utils.custom_train_test_split(group) 
-        X_train = np.array([np.array(x) for x in train[emb_name]])
-        Y_train = train['sem_label'].values
+        train, test = utils.custom_train_test_split(group)
+        for emb in emb_name:
+            X_train = np.array([np.array(x) for x in train[emb]])
+            Y_train = train['sem_label'].values
 
-        X_test = np.array([np.array(x) for x in test[emb_name]])
-        Y_test = test['sem_label'].values
-        out[name] = {
-            "train":train,
-            "X_train": X_train,
-            "Y_train": Y_train,
-            "X_test": X_test,
-            "Y_test": Y_test,
-            "labels": labels
-            }
-    return out
+            X_test = np.array([np.array(x) for x in test[emb]])
+            Y_test = test['sem_label'].values
+            by_emb[emb][name] = {
+                "train":train,
+                "X_train": X_train,
+                "Y_train": Y_train,
+                "X_test": X_test,
+                "Y_test": Y_test,
+                "labels": labels
+                }
+    return by_emb
 
 

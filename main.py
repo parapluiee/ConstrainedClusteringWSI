@@ -57,19 +57,18 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric):
                     df['fasttext'] = ws_embeddings.fasttext_emb(df)
                     np.save(open(xml_path + 'ft.npy', 'wb'), np.array(df['fasttext']))
             
-    data_dict = data.prepare_data(df, embed, split)
+    data_dict = data.prepare_data(df, [embed])
     print("Beginning training: ", classifier)
     match classifier:
         case "regression":
-            preds = classifiers.regression(data_dict, split, embed)
+            preds = classifiers.regression(data_dict, embed)
         case "base-clustering":
-            preds = classifiers.base_clustering(data_dict, emb_name=embed, m_m=m_m, sim_metric=cl_metric, split=split) 
+            preds = classifiers.base_clustering(data_dict, emb_name=embed, m_m=m_m, sim_metric=cl_metric) 
         case "constr-clustering":
-            preds = classifiers.constr_clustering(data_dict, sim_metric=cl_metric, m_m=m_m, split=split, emb_name=embed, n_seeds=1)
+            preds = classifiers.constr_clustering(data_dict, sim_metric=cl_metric, m_m=m_m, emb_name=embed, n_seeds=1)
     
     match classifier:
         case "regression":
-            preds['cluster'] = preds['pred'] 
             clustering_metric = metrics.clustering_metrics(preds, lem_most_com)
             metric = metrics.base_metrics(preds, lem_most_com)
         case _:
