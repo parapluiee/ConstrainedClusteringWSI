@@ -6,11 +6,10 @@ import torch
 from constr_KMeans import ConKMeans
 import utils
 
-def regression(data_dict, emb_name):
+def regression(data_dict, emb_name, per_train=.3):
      #multiclass solver, the one guillaume recommended
     solver = 'saga'
     #80/20 train test
-    split = .8
     #group by lemma
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     lemma_most_com = dict()
@@ -26,7 +25,14 @@ def regression(data_dict, emb_name):
         Y_train = data_dict[name]['Y_train']
         X_test = data_dict[name]['X_test']
         Y_test = data_dict[name]['Y_test']
-
+        #This is horribly inefficient, but we cannot randomly split
+        print(len(labels))
+        if per_train < 1:
+            new_df = pd.DataFrame({"index":range(len(X_train)), "sem_label":Y_train})
+            new_train, _ = utils.custom_train_test_split(new_df, train_split=per_train) 
+            new_train_indices = list(new_train['index'])
+            X_train = X_train[new_train_indices]
+            Y_train = Y_train[new_train_indices]
         if (len(labels) == 1):
             app_df = pd.DataFrame({
                 "pred":[list(labels)[0]]*len(X_test),
