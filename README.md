@@ -40,7 +40,7 @@ Three different context representation methods are implemented:
   Context word frequencies around target word
   Sparse vector representation of vocabulary
 
-Classification Methods
+# Classification Methods
 
 Supervised Regression (regression):
   Logistic Regression with SAGA solver|
@@ -114,7 +114,7 @@ Comprehensive Evaluation
       Constraint levels: 1-30 seeds per cluster|
       Distance metrics: Cosine similarity, Euclidean distance
 
-Evaluation Metrics
+# Evaluation Metrics
   Classification Metrics
     Accuracy: Overall and per-lemma classification accuracy
     F1-Score: Macro-averaged F1 across all senses
