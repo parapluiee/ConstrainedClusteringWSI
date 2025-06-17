@@ -5,6 +5,9 @@ from sklearn.model_selection import train_test_split
 import torch
 from constr_KMeans import ConKMeans
 import utils
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from sklearn.metrics import adjusted_rand_score, v_measure_score, normalized_mutual_info_score
 
 def regression(data_dict, emb_name):
      #multiclass solver, the one guillaume recommended
@@ -46,6 +49,45 @@ def regression(data_dict, emb_name):
             "lemma":[name]*len(X_test)}
             ) 
         preds = pd.concat([preds, app_df], axis=0)
+    return preds
+
+def sk_clustering(data_dict, emb_name):
+    preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
+    data_dict = data_dict[emb_name]
+    # Iterate over each lemma
+    for name in data_dict:
+        sem_labels = data_dict[name]['labels']
+        gold_labels = data_dict[name]['Y']
+        embeddings = torch.tensor(data_dict[name]['X'])
+        # Dimensionality reduction 
+        pca = PCA(n_components=50, random_state=42)
+        reduced_embeddings = pca.fit_transform(embeddings)
+        #or UMAP
+        umap_model = umap.UMAP(n_neighbors=5, min_dist=0.3, metric='cosine', random_state=42)
+        reduced_embeddings = umap_model.fit_transform(embeddings)
+
+        # Clustering with known number of senses
+        n_senses = len(sem_labels)
+        kmeans = KMeans(n_clusters=n_senses, random_state=42)
+        predicted_labels = kmeans.fit_predict(reduced_embeddings)
+
+        # Evaluation metrics
+        app_df = pd.DataFrame({
+            "pred": [sem_labels[int(x)] for x in predicted_labels],
+            "gold": gold_labels,
+            "lemma": [name] * len(gold_labels)
+        })
+        preds = pd.concat([preds, app_df], axis=0)
+
+        # Calculate clustering metrics
+        ari = adjusted_rand_score(gold_labels, predicted_labels)
+        v_measure = v_measure_score(gold_labels, predicted_labels)
+        nmi = normalized_mutual_info_score(gold_labels, predicted_labels)
+
+        print(f"Adjusted Rand Index (ARI): {ari:.3f}")
+        print(f"V-Measure: {v_measure:.3f}")
+        print(f"NMI: {nmi:.3f}")
+    
     return preds
 
 def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100):

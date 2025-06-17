@@ -58,7 +58,7 @@ def get_df(gold_path, xml_path):
     return df
 
 
-def prepare_data(df, emb_name, split=.8):
+def prepare_data(df, emb_name, split=.8, supervised=True):
     """
     Prepare data for training and testing.
     Args:
@@ -73,20 +73,29 @@ def prepare_data(df, emb_name, split=.8):
     for name, group in df.groupby('lemma'):
         labels = list(set(group['sem_label'].values))
         labels.sort()
-        train, test = utils.custom_train_test_split(group)
-        for emb in emb_name:
-            X_train = np.array([np.array(x) for x in train[emb]])
-            Y_train = train['sem_label'].values
+        if supervised:
+            train, test = utils.custom_train_test_split(group)
+            for emb in emb_name:
+                X_train = np.array([np.array(x) for x in train[emb]])
+                Y_train = train['sem_label'].values
 
-            X_test = np.array([np.array(x) for x in test[emb]])
-            Y_test = test['sem_label'].values
-            by_emb[emb][name] = {
-                "train":train,
-                "X_train": X_train,
-                "Y_train": Y_train,
-                "X_test": X_test,
-                "Y_test": Y_test,
-                "labels": labels
+                X_test = np.array([np.array(x) for x in test[emb]])
+                Y_test = test['sem_label'].values
+                by_emb[emb][name] = {
+                    "train":train,
+                    "X_train": X_train,
+                    "Y_train": Y_train,
+                    "X_test": X_test,
+                    "Y_test": Y_test,
+                    "labels": labels
+                    }
+        else:
+            for emb in emb_name:
+                X = np.array([np.array(x) for x in group[emb]])
+                by_emb[emb][name] = {
+                    "X": X,
+                    "Y": group['sem_label'].values,
+                    "labels": labels
                 }
     return by_emb
 

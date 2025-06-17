@@ -13,7 +13,7 @@ parser.add_argument('data_path')
 parser.add_argument('gold_path')
 parser.add_argument('embedding', choices=['bert', 'camembert', 'fasttext'])
 parser.add_argument('calculated', choices=['T', 'F'], help="If T, it will load the embeddings from the data_path, if F it will calculate them")
-parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering'])
+parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering', 'sk_kmeans'])
 parser.add_argument('clus_metric', choices=['cossim', 'dist'], help="cossim for cosine similarity, distance for euclidean distance")
 args=parser.parse_args()
 
@@ -68,7 +68,9 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric):
             preds = classifiers.base_clustering(data_dict, emb_name=embed, m_m=m_m, sim_metric=cl_metric) 
         case "constr-clustering":
             preds = classifiers.constr_clustering(data_dict, sim_metric=cl_metric, m_m=m_m, emb_name=embed, n_seeds=1)
-    
+        case "sk_kmeans":
+            data_dict = data.prepare_data(df, [embed], supervised=False)
+            # preds = classifiers.sk_clustering(data_dict, emb_name=embed)
     match classifier:
         case "regression":
             clustering_metric = metrics.clustering_metrics(preds, lem_most_com)
