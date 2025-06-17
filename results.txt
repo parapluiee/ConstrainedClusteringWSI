@@ -1,0 +1,384 @@
+2025-06-17 13:59:15
+Embedding: fasttext, Classifier: regression, Clus Metric: cossim
+total accuracy: 0.7035330261136713
+total f1 macro: 0.3447594206542795
+all metrics: {'tot_acc': 0.7035330261136713, 'tot_f1_macro': 0.3447594206542795, 'per_acc': lemma
+aboutir        0.818182
+accomplir      0.800000
+achever        0.700000
+acquérir       0.700000
+adapter        0.700000
+                 ...   
+traduire       0.800000
+transformer    1.000000
+tuer           0.700000
+témoigner      0.900000
+viser          1.000000
+Length: 66, dtype: float64, 'per_f1_macro': lemma
+aboutir        0.450000
+accomplir      0.296296
+achever        0.433333
+acquérir       0.205882
+adapter        0.431818
+                 ...   
+traduire       0.611111
+transformer    1.000000
+tuer           0.411765
+témoigner      0.473684
+viser          1.000000
+Length: 66, dtype: float64, 'baseline': lemma
+aboutir        0.818182
+accomplir      0.800000
+achever        0.600000
+acquérir       0.700000
+adapter        0.400000
+                 ...   
+traduire       0.500000
+transformer    1.000000
+tuer           0.700000
+témoigner      0.900000
+viser          0.600000
+Length: 66, dtype: float64, 'beat_baseline': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_base_score': 0.9696969696969697}
+clustering metrics: {'per_rand_score': lemma
+aboutir        0.672727
+accomplir      0.622222
+achever        0.511111
+acquérir       0.466667
+adapter        0.688889
+                 ...   
+traduire       0.777778
+transformer    1.000000
+tuer           0.533333
+témoigner      0.800000
+viser          1.000000
+Length: 66, dtype: float64, 'per_nmi': lemma
+aboutir        0.000000
+accomplir      0.000000
+achever        0.219339
+acquérir       0.000000
+adapter        0.646172
+                 ...   
+traduire       0.744722
+transformer    1.000000
+tuer           0.000000
+témoigner      0.000000
+viser          1.000000
+Length: 66, dtype: float64, 'tot_rand_score': np.float64(0.5707365866456776), 'tot_nmi': np.float64(0.16994648395043924), 'baseline_nmi': lemma
+aboutir        0.0
+accomplir      0.0
+achever        0.0
+acquérir       0.0
+adapter        0.0
+              ... 
+traduire       0.0
+transformer    1.0
+tuer           0.0
+témoigner      0.0
+viser          0.0
+Length: 66, dtype: float64, 'baseline_rand': lemma
+aboutir        0.672727
+accomplir      0.622222
+achever        0.400000
+acquérir       0.466667
+adapter        0.222222
+                 ...   
+traduire       0.311111
+transformer    1.000000
+tuer           0.533333
+témoigner      0.800000
+viser          0.466667
+Length: 66, dtype: float64, 'beat_baseline_nmi': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_baseline_rand': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_base_score_rand': 0.9696969696969697, 'beat_base_score_nmi': 1.0}
+
+
+2025-06-17 14:02:18
+Embedding: bert, Classifier: regression, Clus Metric: cossim
+total accuracy: 0.728110599078341
+total f1 macro: 0.48131078343471345
+all metrics: {'tot_acc': 0.728110599078341, 'tot_f1_macro': 0.48131078343471345, 'per_acc': lemma
+aboutir        0.909091
+accomplir      0.700000
+achever        0.900000
+acquérir       0.700000
+adapter        0.600000
+                 ...   
+traduire       0.900000
+transformer    1.000000
+tuer           0.500000
+témoigner      0.900000
+viser          0.600000
+Length: 66, dtype: float64, 'per_f1_macro': lemma
+aboutir        0.807018
+accomplir      0.274510
+achever        0.922078
+acquérir       0.205882
+adapter        0.366667
+                 ...   
+traduire       0.841270
+transformer    1.000000
+tuer           0.450549
+témoigner      0.473684
+viser          0.583333
+Length: 66, dtype: float64, 'baseline': lemma
+aboutir        0.818182
+accomplir      0.800000
+achever        0.600000
+acquérir       0.700000
+adapter        0.400000
+                 ...   
+traduire       0.500000
+transformer    1.000000
+tuer           0.700000
+témoigner      0.900000
+viser          0.600000
+Length: 66, dtype: float64, 'beat_baseline': lemma
+aboutir         True
+accomplir      False
+achever         True
+acquérir        True
+adapter         True
+               ...  
+traduire        True
+transformer     True
+tuer           False
+témoigner       True
+viser           True
+Length: 66, dtype: bool, 'beat_base_score': 0.8939393939393939}
+clustering metrics: {'per_rand_score': lemma
+aboutir        0.818182
+accomplir      0.511111
+achever        0.822222
+acquérir       0.466667
+adapter        0.688889
+                 ...   
+traduire       0.911111
+transformer    1.000000
+tuer           0.444444
+témoigner      0.800000
+viser          0.466667
+Length: 66, dtype: float64, 'per_nmi': lemma
+aboutir        0.458693
+accomplir      0.049095
+achever        0.731020
+acquérir       0.000000
+adapter        0.521960
+                 ...   
+traduire       0.815731
+transformer    1.000000
+tuer           0.006265
+témoigner      0.000000
+viser          0.020571
+Length: 66, dtype: float64, 'tot_rand_score': np.float64(0.6839356771174953), 'tot_nmi': np.float64(0.407697172091347), 'baseline_nmi': lemma
+aboutir        0.0
+accomplir      0.0
+achever        0.0
+acquérir       0.0
+adapter        0.0
+              ... 
+traduire       0.0
+transformer    1.0
+tuer           0.0
+témoigner      0.0
+viser          0.0
+Length: 66, dtype: float64, 'baseline_rand': lemma
+aboutir        0.672727
+accomplir      0.622222
+achever        0.400000
+acquérir       0.466667
+adapter        0.222222
+                 ...   
+traduire       0.311111
+transformer    1.000000
+tuer           0.533333
+témoigner      0.800000
+viser          0.466667
+Length: 66, dtype: float64, 'beat_baseline_nmi': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_baseline_rand': lemma
+aboutir         True
+accomplir      False
+achever         True
+acquérir        True
+adapter         True
+               ...  
+traduire        True
+transformer     True
+tuer           False
+témoigner       True
+viser           True
+Length: 66, dtype: bool, 'beat_base_score_rand': 0.9393939393939394, 'beat_base_score_nmi': 1.0}
+
+
+2025-06-17 14:22:51
+Embedding: camembert, Classifier: regression, Clus Metric: cossim
+total accuracy: 0.8740399385560675
+total f1 macro: 0.7234845321213924
+all metrics: {'tot_acc': 0.8740399385560675, 'tot_f1_macro': 0.7234845321213924, 'per_acc': lemma
+aboutir        0.909091
+accomplir      0.800000
+achever        1.000000
+acquérir       0.900000
+adapter        0.900000
+                 ...   
+traduire       1.000000
+transformer    1.000000
+tuer           0.700000
+témoigner      1.000000
+viser          0.900000
+Length: 66, dtype: float64, 'per_f1_macro': lemma
+aboutir        0.807018
+accomplir      0.296296
+achever        1.000000
+acquérir       0.666667
+adapter        0.888889
+                 ...   
+traduire       1.000000
+transformer    1.000000
+tuer           0.600000
+témoigner      1.000000
+viser          0.890110
+Length: 66, dtype: float64, 'baseline': lemma
+aboutir        0.818182
+accomplir      0.800000
+achever        0.600000
+acquérir       0.700000
+adapter        0.400000
+                 ...   
+traduire       0.500000
+transformer    1.000000
+tuer           0.700000
+témoigner      0.900000
+viser          0.600000
+Length: 66, dtype: float64, 'beat_baseline': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_base_score': 1.0}
+clustering metrics: {'per_rand_score': lemma
+aboutir        0.818182
+accomplir      0.622222
+achever        1.000000
+acquérir       0.977778
+adapter        0.888889
+                 ...   
+traduire       1.000000
+transformer    1.000000
+tuer           0.533333
+témoigner      1.000000
+viser          0.800000
+Length: 66, dtype: float64, 'per_nmi': lemma
+aboutir        0.458693
+accomplir      0.000000
+achever        1.000000
+acquérir       0.920432
+adapter        0.841173
+                 ...   
+traduire       1.000000
+transformer    1.000000
+tuer           0.040255
+témoigner      1.000000
+viser          0.601196
+Length: 66, dtype: float64, 'tot_rand_score': np.float64(0.8464952555861647), 'tot_nmi': np.float64(0.7212807985970625), 'baseline_nmi': lemma
+aboutir        0.0
+accomplir      0.0
+achever        0.0
+acquérir       0.0
+adapter        0.0
+              ... 
+traduire       0.0
+transformer    1.0
+tuer           0.0
+témoigner      0.0
+viser          0.0
+Length: 66, dtype: float64, 'baseline_rand': lemma
+aboutir        0.672727
+accomplir      0.622222
+achever        0.400000
+acquérir       0.466667
+adapter        0.222222
+                 ...   
+traduire       0.311111
+transformer    1.000000
+tuer           0.533333
+témoigner      0.800000
+viser          0.466667
+Length: 66, dtype: float64, 'beat_baseline_nmi': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_baseline_rand': lemma
+aboutir        True
+accomplir      True
+achever        True
+acquérir       True
+adapter        True
+               ... 
+traduire       True
+transformer    True
+tuer           True
+témoigner      True
+viser          True
+Length: 66, dtype: bool, 'beat_base_score_rand': 1.0, 'beat_base_score_nmi': 1.0}
+
+
