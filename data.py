@@ -3,6 +3,14 @@ import utils
 import numpy as np
 import pandas as pd
 def create_df(data_path):
+    """
+    Create a DataFrame from the XML data.
+    Args:
+        data_path (str): Path to the XML file.
+    Returns:
+        pd.DataFrame: DataFrame containing the data with columns 'ist_id', 'word', 'lemma', 'idx', and 'sent', 
+        corresponding to instance ID, target word, target word's lemma, index in sentence, and the sentence itself.
+    """
     #Parsing xml
     tree = ET.parse(data_path)
     root = tree.getroot()
@@ -49,10 +57,18 @@ def get_df(gold_path, xml_path):
     df['sem_label'] = df['ist_id'].map(lambda x: gold_labels[x])
     return df
 
-#emb_name is a list of embedding names
+
 def prepare_data(df, emb_name, split=.8):
-    #goal:
-        #return dict with X_train, X_test, Y_train, Y_test, from custom data split
+    """
+    Prepare data for training and testing.
+    Args:
+        df (pd.DataFrame): DataFrame containing the data.
+        emb_name (list): List of available embedding methods to be used (['bert', 'fasttext']).
+        split (float): Proportion of data to be used for training.
+    Returns:
+        dict: Dictionary containing training and testing data for each embedding method and lemma.
+        (train, X_train, X_test, Y_train, Y_test, labels)
+    """
     by_emb = {emb:dict() for emb in emb_name} 
     for name, group in df.groupby('lemma'):
         labels = list(set(group['sem_label'].values))
