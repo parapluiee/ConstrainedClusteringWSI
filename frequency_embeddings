@@ -1,0 +1,28 @@
+from collections import Counter
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+def frequency_emb(df, window=5, max_features=1000, use_tfidf=True):
+    # Extract context for all instances
+    contexts = []
+    for _, row in df.iterrows():
+        context = get_context_words(row['sent'], row['idx'], window)
+        contexts.append(' '.join(context))
+    
+    # Create frequency-based features
+    if use_tfidf:
+        vectorizer = TfidfVectorizer(max_features=max_features, lowercase=True)
+    else:
+        from sklearn.feature_extraction.text import CountVectorizer
+        vectorizer = CountVectorizer(max_features=max_features, lowercase=True)
+    
+    # Fit and transform contexts
+    frequency_matrix = vectorizer.fit_transform(contexts)
+    
+    return [np.array(frequency_matrix[i].toarray().flatten()) for i in range(frequency_matrix.shape[0])]
+
+def get_context_words(tokens, idx, window=5):
+    
+    start = max(idx - window, 0)
+    end = min(idx + window + 1, len(tokens))
+    context = tokens[start:idx] + tokens[idx+1:end]
+    return context
