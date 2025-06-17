@@ -6,14 +6,15 @@ import pandas as pd
 import argparse
 from numpy import load
 import numpy as np
-import utils 
-parser=argparse.ArgumentParser(description="sample argument parser")
+import utils
+import time
+parser=argparse.ArgumentParser(description="Run the Word Sense evaluation with different embeddings and classifiers")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')
-parser.add_argument('embedding', choices=['bert', 'fasttext'])
-parser.add_argument('calculated', choices=['T', 'F'])
+parser.add_argument('embedding', choices=['bert', 'camembert', 'fasttext'])
+parser.add_argument('calculated', choices=['T', 'F'], help="If T, it will load the embeddings from the data_path, if F it will calculate them")
 parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering'])
-parser.add_argument('clus_metric')
+parser.add_argument('clus_metric', choices=['cossim', 'dist'], help="cossim for cosine similarity, distance for euclidean distance")
 args=parser.parse_args()
 
 
@@ -32,27 +33,28 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric):
         case "cossim": 
             cl_metric = utils.cl_cossim
             m_m = np.argmax
-        case _:
+        case "dist":
             cl_metric = utils.cl_distance
             m_m = np.argmin
     match embed:
         case "bert":
             if calc == 'T':
                 np_data = load(xml_path + 'bert.npy', allow_pickle=True)
-                #print(np_data)
                 df['bert'] = np_data
-                #print(df)
-                #return
             else:
                 df['bert'] = ws_embeddings.embed_bert(df)
                 np.save(open(xml_path + 'bert.npy', 'wb'), np.array(df['bert']))
+        case "camembert":
+            if calc == 'T':
+                np_data = load(xml_path + 'camembert.npy', allow_pickle=True)
+                df['camembert'] = np_data
+            else:
+                df['camembert'] = ws_embeddings.embed_camembert(df)
+            np.save(open(xml_path + 'camembert.npy', 'wb'), np.array(df['camembert']))
         case "fasttext":
                 if calc == 'T':
                     np_data = load(xml_path + 'ft.npy', allow_pickle=True)
-                #print(np_data)
                     df['fasttext'] = np_data
-                #print(df)
-                #return
                 else:
                     df['fasttext'] = ws_embeddings.fasttext_emb(df)
                     np.save(open(xml_path + 'ft.npy', 'wb'), np.array(df['fasttext']))
@@ -75,6 +77,16 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric):
             clustering_metric = metrics.clustering_metrics(preds, lem_most_com)
             metric = metrics.base_metrics(preds, lem_most_com)
     
-    print(clustering_metric)
-    print(metric)
+    print("total accuracy", metric['tot_acc'])
+    print("total f1 macro", metric['tot_f1_macro'])
+    print("clustering total rand score", clustering_metric['tot_rand_score'])
+    print("clustering total nmi", clustering_metric['tot_nmi'])
+    with open('results.txt', 'a') as f:
+        f.write(time.strftime("%Y-%m-%d %H:%M:%S") + "\n")
+        f.write(f"Embedding: {embed}, Classifier: {classifier}, Clus Metric: {clus_metric}\n")
+        f.write(f"total accuracy: {metric['tot_acc']}\n")
+        f.write(f"total f1 macro: {metric['tot_f1_macro']}\n")
+        f.write(f"all metrics: {metric}\n")
+        f.write(f"clustering metrics: {clustering_metric}\n")
+        f.write("\n\n")
 main(XML_PATH, GOLD_PATH, SPLIT, EMBED, CALC, CLASSIFIER, CLUS_METRIC)

@@ -27,6 +27,11 @@ def embed_bert(df):
     model = AutoModel.from_pretrained("distilbert-base-uncased")
     return df.apply(lambda x: embeddings_model(model, tokenizer, x['sent'], x['idx']), axis=1)
 
+def embed_camembert(df):
+    tokenizer = AutoTokenizer.from_pretrained("camembert-base")
+    model = AutoModel.from_pretrained("camembert-base")
+    return df.apply(lambda x: embeddings_model(model, tokenizer, x['sent'], x['idx']), axis=1)
+
 def fasttext_emb(df):
     model_path = hf_hub_download(repo_id="facebook/fasttext-fr-vectors", filename="model.bin")
     model_ft = fasttext.load_model(model_path)
