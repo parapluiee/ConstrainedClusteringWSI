@@ -1,4 +1,4 @@
-*Semi-supervised Word Sense Disambiguation*
+# *Semi-supervised Word Sense Disambiguation*
 
 This project implements both supervised Word Sense Disambiguation (WSD) and semi-supervised Word Sense Induction (WSI) approaches, exploring the trade-off between annotated data requirements and clustering-based methods with constraints.
 
@@ -22,7 +22,7 @@ Gold standard annotations in separate key file
 
 Each instance contains: target word, lemma, context sentence, and sense label
 
-Word Representations
+# Word Representations
 Three different context representation methods are implemented:
 
 1. BERT Embeddings (bert) :
@@ -57,7 +57,7 @@ Constrained Clustering (constr-clustering):
   Uses n_seeds examples per cluster for initialization|
   Balances supervision and clustering approaches
   
-Project Structure: 
+# Project Structure: 
 
 ├── data.py                 # XML parsing and data preparation
 
@@ -94,10 +94,13 @@ classifier: regression, base-clustering, or constr-clustering|
 clus_metric: cossim (cosine similarity) or distance (Euclidean)
 
 Examples:
-# Supervised WSD with BERT
+Supervised WSD with BERT: 
+
 python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt bert F regression distance
 
-# Semi-supervised clustering with FastText
+
+Semi-supervised clustering with FastText:
+
 python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt fasttext F constr-clustering cossim
 
 # Frequency-based unsupervised clustering ( u know )
