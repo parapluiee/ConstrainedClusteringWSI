@@ -5,27 +5,33 @@ This project implements both supervised Word Sense Disambiguation (WSD) and semi
 Overview
 
 The project addresses the fundamental challenge in WSD: the lack of sufficient sense-annotated data. We compare three approaches:
-Supervised WSD: Traditional classification with labeled data
-Unsupervised WSI: Clustering-based sense discovery
-Semi-supervised WSI: Constrained clustering with minimal supervision
 
-Dataset
+  Supervised WSD: Traditional classification with labeled data
+
+  Unsupervised WSI: Clustering-based sense discovery
+  
+  Semi-supervised WSI: Constrained clustering with minimal supervision
+
+# Dataset
 
 FrenchSemEval (FSE) - French verb disambiguation dataset with Wiktionary sense annotations
+
 XML format with contextual sentences
+
 Gold standard annotations in separate key file
+
 Each instance contains: target word, lemma, context sentence, and sense label
 
 Word Representations
 Three different context representation methods are implemented:
 
-1. BERT Embeddings (bert)
-  Uses DistilBERT-base-uncased
-  Contextual embeddings for target words
+1. BERT Embeddings (bert) :
+  Uses DistilBERT-base-uncased|
+  Contextual embeddings for target words|
   Captures semantic relationships in context
-2. FastText Embeddings (fasttext)
-  French FastText pre-trained vectors
-  Context window averaging (±5 words around target)
+2. FastText Embeddings (fasttext) :
+  French FastText pre-trained vectors|
+  Context window averaging (±5 words around target)|
   Static embeddings with local context
 
 # not sure ( u can delete this guys )
@@ -36,17 +42,19 @@ Three different context representation methods are implemented:
 
 Classification Methods
 
-Supervised Regression (regression)
-  Logistic Regression with SAGA solver
-  Supports training data reduction experiments
+Supervised Regression (regression):
+  Logistic Regression with SAGA solver|
+  Supports training data reduction experiments|
   Baseline: Most frequent sense prediction
-Base Clustering (base-clustering)
-  Standard K-means clustering
-  No supervision, purely unsupervised
+  
+Base Clustering (base-clustering):
+  Standard K-means clustering|
+  No supervision, purely unsupervised|
   Maps clusters to senses using confusion matrix
-Constrained Clustering (constr-clustering)
-  Semi-supervised K-means with seed constraints
-  Uses n_seeds examples per cluster for initialization
+
+Constrained Clustering (constr-clustering):
+  Semi-supervised K-means with seed constraints|
+  Uses n_seeds examples per cluster for initialization|
   Balances supervision and clustering approaches
   
 Project Structure: 
@@ -78,12 +86,13 @@ Single Experiment
   python main.py <data_path> <gold_path> <embedding> <calculated> <classifier> <clus_metric>
 
 Parameters:
-data_path: Path to FSE XML file
-gold_path: Path to gold key file
-embedding: bert, fasttext, or frequency
-calculated: T (load cached) or F (compute new embeddings)
-classifier: regression, base-clustering, or constr-clustering
+data_path: Path to FSE XML file|
+gold_path: Path to gold key file|
+embedding: bert, fasttext, or frequency|
+calculated: T (load cached) or F (compute new embeddings)|
+classifier: regression, base-clustering, or constr-clustering|
 clus_metric: cossim (cosine similarity) or distance (Euclidean)
+
 Examples:
 # Supervised WSD with BERT
 python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt bert F regression distance
@@ -96,11 +105,11 @@ python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt frequency F base-
 
 Comprehensive Evaluation
   python collect_data.py
-Runs all combinations of:
-  Embeddings: BERT, FastText, Frequency
-  Training data reductions: 100%, 75%, 50%, 40%, 30%
-  Constraint levels: 1-30 seeds per cluster
-  Distance metrics: Cosine similarity, Euclidean distance
+    Runs all combinations of:
+      Embeddings: BERT, FastText, Frequency|
+      Training data reductions: 100%, 75%, 50%, 40%, 30%|
+      Constraint levels: 1-30 seeds per cluster|
+      Distance metrics: Cosine similarity, Euclidean distance
 
 Evaluation Metrics
   Classification Metrics
