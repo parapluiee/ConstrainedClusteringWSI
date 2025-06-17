@@ -25,19 +25,24 @@ def main(xml_path, gold_path, embeddings):
     clustering_dict = dict()
 
     for embed in embeddings:
+        
         print("\n" + embed + "\n----")
         print("--regression")
         for reduction in [1.0, .75, .50, .40, .30]:
-            print(reduction)
+            print("----Percentage of training data used: ", reduction)
             regression_dict[embed + '_regression_' + str(int(reduction*100))] = classifiers.regression(data_dict, embed, per_train=reduction)
+        
         print("--base-cl-cos")
         clustering_dict[embed + '_base-clustering-cos'] = classifiers.base_clustering(data_dict, emb_name=embed, m_m=np.argmax, sim_metric=utils.cl_cossim) 
-        print("--const-cl-cos")
-        clustering_dict[embed + '_constr-clustering-cos'] = classifiers.constr_clustering(data_dict, sim_metric=utils.cl_cossim, m_m=np.argmax, emb_name=embed, n_seeds=1)
         print("--base-cl-dist")
         clustering_dict[embed + '_base-clustering-dist'] = classifiers.base_clustering(data_dict, emb_name=embed, m_m=np.argmin, sim_metric=utils.cl_distance) 
-        print("--constr-cl-dist")
-        clustering_dict[embed + '_constr-clustering-dist'] = classifiers.constr_clustering(data_dict, sim_metric=utils.cl_distance, m_m=np.argmin, emb_name=embed, n_seeds=1)
+        #30/31 is the maximum possible senses, but the vast majority of senses have < 5 examples, with a majority around 1/2/3
+        for seeds in range(1, 30):
+            print("--Number of seeds (constraints): ", seeds)
+            print("----const-cl-cos")
+            clustering_dict[embed + '_constr-clustering-cos_' + str(seeds)] = classifiers.constr_clustering(data_dict, sim_metric=utils.cl_cossim, m_m=np.argmax, emb_name=embed, n_seeds=seeds)
+            print("----constr-cl-dist")
+            clustering_dict[embed + '_constr-clustering-dist_' + str(seeds)] = classifiers.constr_clustering(data_dict, sim_metric=utils.cl_distance, m_m=np.argmin, emb_name=embed, n_seeds=seeds)
 
     reg_output = [(metrics.clustering_metrics(regression_dict[name], lem_most_common),metrics.base_metrics(regression_dict[name], lem_most_common)) for name in regression_dict]
 
