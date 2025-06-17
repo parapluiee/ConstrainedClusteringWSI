@@ -52,15 +52,25 @@ Constrained Clustering (constr-clustering)
 Project Structure: 
 
 ├── data.py                 # XML parsing and data preparation
+
 ├── ws_embeddings.py        # Word representation methods
+
 ├── classifiers.py          # WSD and WSI implementations
+
 ├── constr_KMeans.py       # Custom constrained K-means algorithm
+
 ├── utils.py               # Utility functions (train/test split, distance metrics)
+
 ├── metrics.py             # Evaluation metrics for classification and clustering
+
 ├── main.py                # Single experiment runner
+
 ├── collect_data.py        # Comprehensive evaluation script
+
 └── data/
+
     ├── FSE-1.1.data.xml   # FrenchSemEval dataset
+    
     └── FSE-1.1.gold.key.txt # Gold standard annotations
 
 Usage
@@ -81,7 +91,7 @@ python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt bert F regression
 # Semi-supervised clustering with FastText
 python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt fasttext F constr-clustering cossim
 
-# Frequency-based unsupervised clustering
+# Frequency-based unsupervised clustering ( u know )
 python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt frequency F base-clustering distance
 
 Comprehensive Evaluation
@@ -105,9 +115,15 @@ Evaluation Metrics
 Dependencies:
 
 torch
+
 transformers
+
 scikit-learn
+
 fasttext
+
 huggingface_hub
+
 pandas
+
 numpy
