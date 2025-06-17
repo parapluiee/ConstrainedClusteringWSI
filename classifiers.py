@@ -5,12 +5,12 @@ from sklearn.model_selection import train_test_split
 import torch
 from constr_KMeans import ConKMeans
 import utils
-
-def regression(data_dict, emb_name):
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+def regression(data_dict, emb_name, per_train=1):
      #multiclass solver, the one guillaume recommended
     solver = 'saga'
     #80/20 train test
-    split = .8
     #group by lemma
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     lemma_most_com = dict()
@@ -26,7 +26,13 @@ def regression(data_dict, emb_name):
         Y_train = data_dict[name]['Y_train']
         X_test = data_dict[name]['X_test']
         Y_test = data_dict[name]['Y_test']
-
+        #This is horribly inefficient, but we cannot randomly split
+        if per_train < 1:
+            new_df = pd.DataFrame({"index":range(len(X_train)), "sem_label":Y_train})
+            new_train, _ = utils.custom_train_test_split(new_df, train_split=per_train) 
+            new_train_indices = list(new_train['index'])
+            X_train = X_train[new_train_indices]
+            Y_train = Y_train[new_train_indices]
         if (len(labels) == 1):
             app_df = pd.DataFrame({
                 "pred":[list(labels)[0]]*len(X_test),
@@ -37,7 +43,9 @@ def regression(data_dict, emb_name):
             #cross_validation, need to make sure equal senses in training data
         else: 
                 #need to ensure equal distribution of labels
-            classifier.fit(X_train, Y_train)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=ConvergenceWarning)
+                classifier.fit(X_train, Y_train)
             pred = classifier.predict(X_test)
             app_df = pd.DataFrame({
             "pred":pred,

@@ -17,9 +17,9 @@ def main(xml_path, gold_path, embeddings):
 
     df['bert'] = load(xml_path + 'bert.npy', allow_pickle=True)
     print("Fasttext embeddings")
-    df['fasttext'] = ws_embeddings.fasttext_emb(df)
+    #df['fasttext'] = ws_embeddings.fasttext_emb(df)
 
-    #df['fasttext'] = load(xml_path + 'ft.npy', allow_pickle=True)
+    df['fasttext'] = load(xml_path + 'ft.npy', allow_pickle=True)
     data_dict = data.prepare_data(df, embeddings)
     regression_dict = dict()
     clustering_dict = dict()
@@ -27,7 +27,9 @@ def main(xml_path, gold_path, embeddings):
     for embed in embeddings:
         print("\n" + embed + "\n----")
         print("--regression")
-        regression_dict[embed + '_regression'] = classifiers.regression(data_dict, embed)
+        for reduction in [1.0, .75, .50, .40, .30]:
+            print(reduction)
+            regression_dict[embed + '_regression_' + str(int(reduction*100))] = classifiers.regression(data_dict, embed, per_train=reduction)
         print("--base-cl-cos")
         clustering_dict[embed + '_base-clustering-cos'] = classifiers.base_clustering(data_dict, emb_name=embed, m_m=np.argmax, sim_metric=utils.cl_cossim) 
         print("--const-cl-cos")
