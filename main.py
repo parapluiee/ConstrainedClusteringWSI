@@ -11,7 +11,7 @@ import time
 parser=argparse.ArgumentParser(description="Run the Word Sense evaluation with different embeddings and classifiers")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')
-parser.add_argument('embedding', choices=['bert', 'camembert', 'fasttext'])
+parser.add_argument('embedding', choices=['bert', 'camembert', 'fasttext', 'freq'], help="The representations to use, bert for BERT embeddings, camembert for CamemBERT embeddings, fasttext for FastText embeddings, freq for word frequency representation")
 parser.add_argument('calculated', choices=['T', 'F'], help="If T, it will load the embeddings from the data_path, if F it will calculate them")
 parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering'])
 parser.add_argument('clus_metric', choices=['cossim', 'dist'], help="cossim for cosine similarity, distance for euclidean distance")
@@ -58,6 +58,9 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric):
                 else:
                     df['fasttext'] = ws_embeddings.fasttext_emb(df)
                     np.save(open(xml_path + 'ft.npy', 'wb'), np.array(df['fasttext']))
+        case "freq":
+            df = ws_embeddings.embed_freq(df)
+
             
     data_dict = data.prepare_data(df, [embed])
     print("Beginning training: ", classifier)
@@ -79,8 +82,10 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric):
     
     print("total accuracy", metric['tot_acc'])
     print("total f1 macro", metric['tot_f1_macro'])
+    print("beat_base_score", metric['beat_base_score'])
     print("clustering total rand score", clustering_metric['tot_rand_score'])
     print("clustering total nmi", clustering_metric['tot_nmi'])
+
     with open('results.txt', 'a') as f:
         f.write(time.strftime("%Y-%m-%d %H:%M:%S") + "\n")
         f.write(f"Embedding: {embed}, Classifier: {classifier}, Clus Metric: {clus_metric}\n")
