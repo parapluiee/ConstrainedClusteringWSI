@@ -3,7 +3,7 @@ from sklearn.datasets import make_blobs
 import torch
 import utils
 class ConKMeans:
-    def __init__(self, n_clusters, sim_metric, m_m = np.argmin, supervised=True, max_iters=100):
+    def __init__(self, n_clusters, sim_metric, m_m = np.argmin, supervised=True, max_iters=295):
         self.n_clusters = n_clusters
         self.max_iters = max_iters
         self.sim_metric = sim_metric
