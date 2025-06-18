@@ -4,3 +4,4 @@ pandas
 transformers
 torch
 numpy==1.26.4
+bcubed

@@ -1,141 +1,76 @@
-# *Semi-supervised Word Sense Disambiguation*
+# ConstrainedClusteringWSI
 
-This project implements both supervised Word Sense Disambiguation (WSD) and semi-supervised Word Sense Induction (WSI) approaches, exploring the trade-off between annotated data requirements and clustering-based methods with constraints.
+This project provides a modular framework for supervised, unsupervised, and semi-supervised word sense disambiguation (WSD) and word sense induction (WSI) on french verbs using FSE dataset. It supports multiple embedding strategies (BERT, CamemBERT, FastText, frequency-based) and clustering/classification approaches, with a focus on constrained clustering for leveraging limited supervision. 
 
-Overview
+## Features
 
-The project addresses the fundamental challenge in WSD: the lack of sufficient sense-annotated data. We compare three approaches:
+- **Flexible Embedding Support:** BERT, CamemBERT, FastText, and frequency-based representations.
+- **Multiple Evaluation Modes:** Supervised (classification), unsupervised (clustering), and semi-supervised (constrained clustering).
+- **Custom K-Means:** Implementation of constrained K-means for semi-supervised clustering.
+- **Comprehensive Metrics:** Accuracy, F1, Rand Index, NMI, F-Bcubed, and baseline comparisons.
+- **Reproducible Experiments:** Modular scripts for single runs and batch evaluations.
 
-  Supervised WSD: Traditional classification with labeled data
+## Setup
 
-  Unsupervised WSI: Clustering-based sense discovery
-  
-  Semi-supervised WSI: Constrained clustering with minimal supervision
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/parapluiee/ConstrainedClusteringWSI.git
+   cd ConstrainedClusteringWSI
+   ```
 
-# Dataset
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-FrenchSemEval (FSE) - French verb disambiguation dataset with Wiktionary sense annotations
+3. **Prepare data:**
+   - Place your XML data file and gold key file in the data directory.
+   - Update paths in your scripts if necessary.
 
-XML format with contextual sentences
+## Usage
 
-Gold standard annotations in separate key file
+### Single Experiment
 
-Each instance contains: target word, lemma, context sentence, and sense label
+Run a single experiment with specified embedding and classifier:
 
-# Word Representations
-Three different context representation methods are implemented:
+```bash
+python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt 'camembert' 'regression'
+```
 
-1. BERT Embeddings (bert) :
-  Uses DistilBERT-base-uncased|
-  Contextual embeddings for target words|
-  Captures semantic relationships in context
-2. FastText Embeddings (fasttext) :
-  French FastText pre-trained vectors|
-  Context window averaging (±5 words around target)|
-  Static embeddings with local context
+**Arguments:**
+- `<data_path>`: Path to XML data file.
+- `<gold_path>`: Path to gold key file.
+- `<embedding>`: One of `bert`, `camembert`, `fasttext`, `freq`.
+- `<classifier>`: One of `regression`, `base-clustering`, `constr-clustering`.
+- `--calculated`: Use precomputed embeddings (`true` or `false`).
+- `--clus_metric`: Clustering metric (`cossim` for cosine, `dist` for Euclidean).
+- `--eval_option`: `supervised` or `unsupervised`.
 
-# not sure ( u can delete this guys )
-"3. Frequency Features (frequency)"
-  TF-IDF or count-based features
-  Context word frequencies around target word
-  Sparse vector representation of vocabulary
+### Batch Experiments
 
-# Classification Methods
+To run comprehensive evaluations across all settings:
 
-Supervised Regression (regression):
-  Logistic Regression with SAGA solver|
-  Supports training data reduction experiments|
-  Baseline: Most frequent sense prediction
-  
-Base Clustering (base-clustering):
-  Standard K-means clustering|
-  No supervision, purely unsupervised|
-  Maps clusters to senses using confusion matrix
+```bash
+python collect_data.py
+```
 
-Constrained Clustering (constr-clustering):
-  Semi-supervised K-means with seed constraints|
-  Uses n_seeds examples per cluster for initialization|
-  Balances supervision and clustering approaches
-  
-# Project Structure: 
-
-├── data.py                 # XML parsing and data preparation
-
-├── ws_embeddings.py        # Word representation methods
-
-├── classifiers.py          # WSD and WSI implementations
-
-├── constr_KMeans.py       # Custom constrained K-means algorithm
-
-├── utils.py               # Utility functions (train/test split, distance metrics)
-
-├── metrics.py             # Evaluation metrics for classification and clustering
-
-├── main.py                # Single experiment runner
-
-├── collect_data.py        # Comprehensive evaluation script
-
-└── data/
-
-    ├── FSE-1.1.data.xml   # FrenchSemEval dataset
-    
-    └── FSE-1.1.gold.key.txt # Gold standard annotations
-
-Usage
-Single Experiment
-  python main.py <data_path> <gold_path> <embedding> <calculated> <classifier> <clus_metric>
-
-Parameters:
-data_path: Path to FSE XML file|
-gold_path: Path to gold key file|
-embedding: bert, fasttext, or frequency|
-calculated: T (load cached) or F (compute new embeddings)|
-classifier: regression, base-clustering, or constr-clustering|
-clus_metric: cossim (cosine similarity) or distance (Euclidean)
-
-Examples:
-Supervised WSD with BERT: 
-
-python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt bert F regression distance
+Edit `collect_data.py` to customize experiment sweeps.
 
 
-Semi-supervised clustering with FastText:
 
-python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt fasttext F constr-clustering cossim
+## Project Structure
 
-# Frequency-based unsupervised clustering ( u know )
-python main.py data/FSE-1.1.data.xml data/FSE-1.1.gold.key.txt frequency F base-clustering distance
+- `data.py`: Data loading and preparation.
+- `ws_embeddings.py`: Embedding generation.
+- `classifiers.py`: Classification and clustering logic.
+- `constr_KMeans.py`: Constrained K-means implementation.
+- `utils.py`: Utility functions.
+- `metrics.py`: Evaluation metrics.
+- `main.py`: Single experiment runner.
+- `collect_data.py`: Batch experiment runner.
+- `data` folder containing the french dataset
 
-Comprehensive Evaluation
-  python collect_data.py
-    Runs all combinations of:
-      Embeddings: BERT, FastText, Frequency|
-      Training data reductions: 100%, 75%, 50%, 40%, 30%|
-      Constraint levels: 1-30 seeds per cluster|
-      Distance metrics: Cosine similarity, Euclidean distance
+## License
 
-# Evaluation Metrics
-  Classification Metrics
-    Accuracy: Overall and per-lemma classification accuracy
-    F1-Score: Macro-averaged F1 across all senses
-    Baseline Comparison: Performance vs. most frequent sense
-  Clustering Metrics
-    Rand Score: Agreement between predicted and gold clusters
-    Normalized Mutual Information (NMI): Information-theoretic clustering quality
-    F-B-Cubed: Specialized WSI evaluation metric
-    
-Dependencies:
+This project is for research and educational purposes.
 
-torch
-
-transformers
-
-scikit-learn
-
-fasttext
-
-huggingface_hub
-
-pandas
-
-numpy
