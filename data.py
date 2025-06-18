@@ -75,6 +75,7 @@ def prepare_data(df, emb_name, split=.8):
         labels.sort()
         train, test = utils.custom_train_test_split(group)
         for emb in emb_name:
+
             X_train = np.array([np.array(x) for x in train[emb]])
             Y_train = train['sem_label'].values
 
@@ -82,6 +83,9 @@ def prepare_data(df, emb_name, split=.8):
             Y_test = test['sem_label'].values
             by_emb[emb][name] = {
                 "train":train,
+                "raw": group,
+                "X_raw": np.array([np.array(x) for x in group[emb]]),
+                "Y_raw": np.array(group['sem_label']),
                 "X_train": X_train,
                 "Y_train": Y_train,
                 "X_test": X_test,

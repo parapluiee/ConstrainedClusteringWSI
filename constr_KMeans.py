@@ -3,11 +3,12 @@ from sklearn.datasets import make_blobs
 import torch
 import utils
 class ConKMeans:
-    def __init__(self, n_clusters, sim_metric, m_m = np.argmin, max_iters=100):
+    def __init__(self, n_clusters, sim_metric, m_m = np.argmin, supervised=True, max_iters=100):
         self.n_clusters = n_clusters
         self.max_iters = max_iters
         self.sim_metric = sim_metric
         self.m_m = m_m
+        self.supervised = supervised
 
     def fit(self, X, Y, senses, n_seeds=0, seeds=None):
         if n_seeds:
@@ -39,7 +40,10 @@ class ConKMeans:
                 if np.isnan(new_centroids[i]).sum():
                     new_centroids[i] = self.centroids[i]
             self.centroids = new_centroids
-        return utils.agirre_matr(labels, Y, senses)
+        if self.supervised:
+            return utils.agirre_matr(labels, Y, senses)
+        else:
+            return []
 
     def _assign_labels(self, X, seed_assignment=list(), seed_mask=list()):
         # Compute distances from each data point to centroids
