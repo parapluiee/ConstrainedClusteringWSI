@@ -56,14 +56,14 @@ def regression(data_dict, emb_name, per_train=1):
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100, prediction=True):
+def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100, supervised=True):
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
 
     data_dict = data_dict[emb_name] 
     for name in data_dict:
 
         sem_labels = data_dict[name]['labels']
-        if prediction:
+        if supervised:
             X_train = torch.tensor(data_dict[name]['X_train'])
             Y_train = data_dict[name]['Y_train']
             X_test = torch.tensor(data_dict[name]['X_test'])
@@ -75,9 +75,9 @@ def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100, predic
         
         k = len(sem_labels)
         # Define the number of iterations
-        clusterer = ConKMeans(k, sim_metric, m_m, prediction=prediction)
+        clusterer = ConKMeans(k, sim_metric, m_m, supervised=supervised)
         M = clusterer.fit(X_train, Y_train, sem_labels)
-        if prediction:
+        if supervised:
             distances_pred, clusters_pred = clusterer._assign_labels(X_test)
 
             app_df = pd.DataFrame({
@@ -96,7 +96,7 @@ def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100, predic
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1, prediction=True):
+def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1, supervised=True):
 
 
     data_dict = data_dict[emb_name] 
@@ -104,7 +104,7 @@ def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1, predictio
     for name in data_dict:
         
         senses = data_dict[name]['labels']
-        if prediction:
+        if supervised:
 
             train = data_dict[name]['train']
             X_train = torch.tensor(data_dict[name]['X_train'])
@@ -122,12 +122,12 @@ def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1, predictio
         seeds = [list(group.head(n_seeds).index.values) for name, group in train.groupby('sem_label')]
         #fine to find k based on all labels, should be the same if split works correctly
         k = len(senses)
-        clusterer = ConKMeans(k, sim_metric, m_m, prediction = prediction)
+        clusterer = ConKMeans(k, sim_metric, m_m, supervised = supervised)
         # Define the number of iterations
         
         #add logic to average a number of seeds for centroid initialization
         M = clusterer.fit(X_train, Y_train, senses, seeds=seeds, n_seeds=n_seeds)
-        if prediction:
+        if supervised:
             distances_pred, labels_pred = clusterer._assign_labels(X_test)
             app_df = pd.DataFrame({
             "pred":[num2label[x] for x in labels_pred],
