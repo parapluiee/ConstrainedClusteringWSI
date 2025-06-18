@@ -17,7 +17,7 @@ parser.add_argument('classifier', choices=['regression', 'base-clustering', 'con
 parser.add_argument('--calculated', choices=['true', 'false'], default='false')
 parser.add_argument('--clus_metric', choices=['cossim', 'dist'], help="cossim for cosine similarity, distance for euclidean distance", default='cossim')
 
-parser.add_argument('--eval_option', default='prediction', choices=['prediction', 'clustering']) 
+parser.add_argument('--eval_option', default='supervised', choices=['supervised', 'unsupervised']) 
 args=parser.parse_args()
 
 XML_PATH = args.data_path
@@ -54,19 +54,20 @@ def main(xml_path, gold_path, split, embed, calc, classifier, clus_metric, eval_
                 np.save(open(xml_path + 'ft.npy', 'wb'), np.array(df['fasttext']))
     data_dict = data.prepare_data(df, [embed])
     print("Beginning training: ", classifier)
-    prediction = eval_option == 'prediction' 
+    supervised = eval_option == 'supervised' 
     match classifier:
         case "regression":
             preds = classifiers.regression(data_dict, embed)
         case "base-clustering":
-            preds = classifiers.base_clustering(data_dict, emb_name=embed, m_m=m_m, sim_metric=cl_metric, prediction=prediction) 
+            preds = classifiers.base_clustering(data_dict, emb_name=embed, m_m=m_m, sim_metric=cl_metric, supervised=supervised) 
         case "constr-clustering":
-            preds = classifiers.constr_clustering(data_dict, sim_metric=cl_metric, m_m=m_m, emb_name=embed, n_seeds=1, prediction=prediction)
+            preds = classifiers.constr_clustering(data_dict, sim_metric=cl_metric, m_m=m_m, emb_name=embed, n_seeds=1, supervised=supervised)
 
-    with open('results.txt', 'a') as f:
+
+    with open('results.txt', 'w') as f:
         f.write(time.strftime("%Y-%m-%d %H:%M:%S") + "\n")
         f.write(f"Embedding: {embed}, Classifier: {classifier}, Clus Metric: {clus_metric}\n")
-        if prediction:
+        if supervised:
             metric = metrics.base_metrics(preds, lem_most_com)
             print("total accuracy", metric['tot_acc'])
             print("total f1 macro", metric['tot_f1_macro'])
