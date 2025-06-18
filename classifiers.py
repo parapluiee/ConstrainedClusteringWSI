@@ -56,64 +56,92 @@ def regression(data_dict, emb_name, per_train=1):
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100):
+def base_clustering(data_dict, emb_name, sim_metric, m_m, iterations=100, prediction=True):
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
 
     data_dict = data_dict[emb_name] 
     for name in data_dict:
+
         sem_labels = data_dict[name]['labels']
-        X_train = torch.tensor(data_dict[name]['X_train'])
-        Y_train = data_dict[name]['Y_train']
-        X_test = torch.tensor(data_dict[name]['X_test'])
-        Y_test = data_dict[name]['Y_test']
-        #fine to find k based on all labels, should be the same if split works correctly
+        if prediction:
+            X_train = torch.tensor(data_dict[name]['X_train'])
+            Y_train = data_dict[name]['Y_train']
+            X_test = torch.tensor(data_dict[name]['X_test'])
+            Y_test = data_dict[name]['Y_test']
+        else:
+            train = data_dict[name]['raw']
+            X_train = torch.tensor(data_dict[name]['X_raw'])
+            Y_train = data_dict[name]['Y_raw']
+        
         k = len(sem_labels)
         # Define the number of iterations
-        clusterer = ConKMeans(k, sim_metric, m_m)
+        clusterer = ConKMeans(k, sim_metric, m_m, prediction=prediction)
         M = clusterer.fit(X_train, Y_train, sem_labels)
+        if prediction:
+            distances_pred, clusters_pred = clusterer._assign_labels(X_test)
 
-        distances_pred, clusters_pred = clusterer._assign_labels(X_test)
+            app_df = pd.DataFrame({
+                "pred":[sem_labels[int(x)] for x in np.argmax(np.dot(distances_pred, M), axis=1)],
+                "gold":Y_test,
+                "lemma":[name]*len(X_test)}
+                ) 
+        else:
+            _, clusters_pred = clusterer._assign_labels(X_train)
+            app_df = pd.DataFrame({
+                "cluster":clusters_pred,
+                "gold":Y_train,
+                "lemma":[name]*len(X_train)}
+                ) 
 
-        app_df = pd.DataFrame({
-            "pred":[sem_labels[int(x)] for x in np.argmax(np.dot(distances_pred, M), axis=1)],
-                    "cluster":clusters_pred,
-                    "gold":Y_test,
-                    "lemma":[name]*len(X_test)}
-                    ) 
         preds = pd.concat([preds, app_df], axis=0)
     return preds
 
-def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1):
+def constr_clustering(data_dict, sim_metric, m_m, emb_name, n_seeds=1, prediction=True):
+
 
     data_dict = data_dict[emb_name] 
     preds = pd.DataFrame({"pred":list(), "gold":list(), "lemma":list()})
     for name in data_dict:
+        
         senses = data_dict[name]['labels']
-        train = data_dict[name]['train']
-        X_train = torch.tensor(data_dict[name]['X_train'])
-        Y_train = data_dict[name]['Y_train']
-        X_test = torch.tensor(data_dict[name]['X_test'])
-        Y_test = data_dict[name]['Y_test']
+        if prediction:
 
+            train = data_dict[name]['train']
+            X_train = torch.tensor(data_dict[name]['X_train'])
+            Y_train = data_dict[name]['Y_train']
+            X_test = torch.tensor(data_dict[name]['X_test'])
+            Y_test = data_dict[name]['Y_test']
+        else:
+            train = data_dict[name]['raw']
+            X_train = torch.tensor(data_dict[name]['X_raw'])
+            Y_train = data_dict[name]['Y_raw']
         
         train=train.reset_index(drop=True)
         num2label = [name for name, _ in train.groupby('sem_label')]
+
         seeds = [list(group.head(n_seeds).index.values) for name, group in train.groupby('sem_label')]
-        
-        
         #fine to find k based on all labels, should be the same if split works correctly
         k = len(senses)
-        clusterer = ConKMeans(k, sim_metric, m_m)
+        clusterer = ConKMeans(k, sim_metric, m_m, prediction = prediction)
         # Define the number of iterations
         
         #add logic to average a number of seeds for centroid initialization
         M = clusterer.fit(X_train, Y_train, senses, seeds=seeds, n_seeds=n_seeds)
-        distances_pred, labels_pred = clusterer._assign_labels(X_test)
-        app_df = pd.DataFrame({
-            "pred":[senses[int(x)] for x in np.argmax(np.dot(distances_pred, M), axis=1)],
-            "cluster":labels_pred,
+        if prediction:
+            distances_pred, labels_pred = clusterer._assign_labels(X_test)
+            app_df = pd.DataFrame({
+            "pred":[num2label[x] for x in labels_pred],
             "gold":Y_test,
             "lemma":[name]*len(X_test)}
-        ) 
+        )
+        else:
+
+            _, clusters_pred = clusterer._assign_labels(X_train)
+            app_df = pd.DataFrame({
+                    "cluster":clusters_pred,
+                    "gold":Y_train,
+                    "lemma":[name]*len(X_train)}
+                )
+
         preds = pd.concat([preds, app_df], axis=0)
     return preds 
