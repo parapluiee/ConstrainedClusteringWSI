@@ -12,7 +12,8 @@ import frequency_embeddings
 parser=argparse.ArgumentParser(description="Run the Word Sense evaluation with different embeddings and classifiers")
 parser.add_argument('data_path')
 parser.add_argument('gold_path')
-parser.add_argument('embedding', choices=['bert', 'camembert', 'fasttext', 'context'])
+
+parser.add_argument('embedding', choices=['bert', 'camembert', 'fasttext', 'freq'], help="The representations to use, bert for BERT embeddings, camembert for CamemBERT embeddings, fasttext for FastText embeddings, freq for word frequency representation")
 parser.add_argument('classifier', choices=['regression', 'base-clustering', 'constr-clustering'])
 parser.add_argument('--calculated', choices=['true', 'false'], default='false')
 parser.add_argument('--clus_metric', choices=['cossim', 'dist'], help="cossim for cosine similarity, distance for euclidean distance", default='cossim')
